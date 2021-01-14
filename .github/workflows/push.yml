@@ -1,0 +1,23 @@
+  on: push
+  name: CI
+  jobs:
+    test:
+      runs-on: ubuntu-20.04
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-go@v2
+          with:
+            go-version: 1.15
+        - name: Check Tidy
+          run: |
+            go mod tidy
+            git diff --exit-code
+        - name: Check auto generated files
+          run: |
+            make gen fmt
+            git diff --exit-code
+        - name: Check Format
+          run: |
+            make fmt
+            git diff --exit-code
+        - run: make test
