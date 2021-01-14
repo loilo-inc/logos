@@ -4,45 +4,55 @@ import "sync"
 
 type BoolSet interface {
 	Add(v bool)
+	Delete(v bool)
 	Values() []bool
+	ForEach(f func(v bool) (ok bool))
 	Size() int
 	Has(v bool) bool
 }
 
 type boolSet struct {
-	m   map[bool]bool
-	mux sync.Mutex
+	m sync.Map
 }
 
 func (i *boolSet) Has(v bool) bool {
-	_, ok := i.m[v]
+	_, ok := i.m.Load(v)
 	return ok
 }
 
 func (i *boolSet) Size() int {
-	return len(i.m)
+	cnt := 0
+	i.m.Range(func(key, value interface{}) bool {
+		cnt += 1
+		return true
+	})
+	return cnt
 }
 
 func (i *boolSet) Add(v bool) {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	if _, ok := i.m[v]; !ok {
-		i.m[v] = true
-	}
+	i.m.Store(v, struct{}{})
+}
+
+func (i *boolSet) Delete(v bool) {
+	i.m.Delete(v)
+}
+
+func (i *boolSet) ForEach(f func(i bool) bool) {
+	i.m.Range(func(key, value interface{}) bool {
+		return f(key.(bool))
+	})
 }
 
 func (i *boolSet) Values() []bool {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	ret := make([]bool, i.Size())
-	j := 0
-	for k := range i.m {
-		ret[j] = k
-		j++
-	}
+	var ret []bool
+	i.m.Range(func(key, value interface{}) bool {
+		v := key.(bool)
+		ret = append(ret, v)
+		return true
+	})
 	return ret
 }
 
 func NewBoolSet() BoolSet {
-	return &boolSet{m: make(map[bool]bool)}
+	return &boolSet{}
 }

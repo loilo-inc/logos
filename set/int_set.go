@@ -4,45 +4,55 @@ import "sync"
 
 type IntSet interface {
 	Add(v int)
+	Delete(v int)
 	Values() []int
+	ForEach(f func(v int) (ok bool))
 	Size() int
 	Has(v int) bool
 }
 
 type intSet struct {
-	m   map[int]bool
-	mux sync.Mutex
+	m sync.Map
 }
 
 func (i *intSet) Has(v int) bool {
-	_, ok := i.m[v]
+	_, ok := i.m.Load(v)
 	return ok
 }
 
 func (i *intSet) Size() int {
-	return len(i.m)
+	cnt := 0
+	i.m.Range(func(key, value interface{}) bool {
+		cnt += 1
+		return true
+	})
+	return cnt
 }
 
 func (i *intSet) Add(v int) {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	if _, ok := i.m[v]; !ok {
-		i.m[v] = true
-	}
+	i.m.Store(v, struct{}{})
+}
+
+func (i *intSet) Delete(v int) {
+	i.m.Delete(v)
+}
+
+func (i *intSet) ForEach(f func(i int) bool) {
+	i.m.Range(func(key, value interface{}) bool {
+		return f(key.(int))
+	})
 }
 
 func (i *intSet) Values() []int {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	ret := make([]int, i.Size())
-	j := 0
-	for k := range i.m {
-		ret[j] = k
-		j++
-	}
+	var ret []int
+	i.m.Range(func(key, value interface{}) bool {
+		v := key.(int)
+		ret = append(ret, v)
+		return true
+	})
 	return ret
 }
 
 func NewIntSet() IntSet {
-	return &intSet{m: make(map[int]bool)}
+	return &intSet{}
 }

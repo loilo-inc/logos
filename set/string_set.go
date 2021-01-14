@@ -4,45 +4,55 @@ import "sync"
 
 type StringSet interface {
 	Add(v string)
+	Delete(v string)
 	Values() []string
+	ForEach(f func(v string) (ok bool))
 	Size() int
 	Has(v string) bool
 }
 
 type stringSet struct {
-	m   map[string]bool
-	mux sync.Mutex
+	m sync.Map
 }
 
 func (i *stringSet) Has(v string) bool {
-	_, ok := i.m[v]
+	_, ok := i.m.Load(v)
 	return ok
 }
 
 func (i *stringSet) Size() int {
-	return len(i.m)
+	cnt := 0
+	i.m.Range(func(key, value interface{}) bool {
+		cnt += 1
+		return true
+	})
+	return cnt
 }
 
 func (i *stringSet) Add(v string) {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	if _, ok := i.m[v]; !ok {
-		i.m[v] = true
-	}
+	i.m.Store(v, struct{}{})
+}
+
+func (i *stringSet) Delete(v string) {
+	i.m.Delete(v)
+}
+
+func (i *stringSet) ForEach(f func(i string) bool) {
+	i.m.Range(func(key, value interface{}) bool {
+		return f(key.(string))
+	})
 }
 
 func (i *stringSet) Values() []string {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	ret := make([]string, i.Size())
-	j := 0
-	for k := range i.m {
-		ret[j] = k
-		j++
-	}
+	var ret []string
+	i.m.Range(func(key, value interface{}) bool {
+		v := key.(string)
+		ret = append(ret, v)
+		return true
+	})
 	return ret
 }
 
 func NewStringSet() StringSet {
-	return &stringSet{m: make(map[string]bool)}
+	return &stringSet{}
 }

@@ -4,45 +4,55 @@ import "sync"
 
 type {{.Iface}} interface {
 	Add(v {{.Type}})
+	Delete(v {{.Type}})
 	Values() []{{.Type}}
+	ForEach(f func(v {{.Type}}) (ok bool))
 	Size() int
 	Has(v {{.Type}}) bool
 }
 
 type {{.Struct}} struct {
-	m   map[{{.Type}}]bool
-	mux sync.Mutex
+	m   sync.Map
 }
 
 func (i *{{.Struct}}) Has(v {{.Type}}) bool {
-	_, ok := i.m[v]
+	_, ok := i.m.Load(v)
 	return ok
 }
 
 func (i *{{.Struct}}) Size() int {
-	return len(i.m)
+	cnt := 0
+	i.m.Range(func(key, value interface{}) bool {
+		cnt += 1
+		return true
+	})
+	return cnt
 }
 
 func (i *{{.Struct}}) Add(v {{.Type}}) {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	if _, ok := i.m[v]; !ok {
-		i.m[v] = true
-	}
+	i.m.Store(v, struct{}{})
+}
+
+func (i *{{.Struct}}) Delete(v {{.Type}}) {
+	i.m.Delete(v)
+}
+
+func (i *{{.Struct}}) ForEach(f func(i {{.Type}}) bool) {
+	i.m.Range(func(key, value interface{}) bool {
+		return f(key.({{.Type}}))
+	})
 }
 
 func (i *{{.Struct}}) Values() []{{.Type}} {
-	i.mux.Lock()
-	defer i.mux.Unlock()
-	ret := make([]{{.Type}}, i.Size())
-	j := 0
-	for k := range i.m {
-		ret[j] = k
-		j++
-	}
+	var ret []{{.Type}}
+	i.m.Range(func(key, value interface{}) bool {
+		v := key.({{.Type}})
+		ret = append(ret, v)
+		return true
+	})
 	return ret
 }
 
 func New{{.Iface}}() {{.Iface}} {
-    return &{{.Struct}}{ m: make(map[{{.Type}}]bool)}
+	return &{{.Struct}}{}
 }
