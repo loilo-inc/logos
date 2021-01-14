@@ -1,0 +1,48 @@
+package set
+
+import "sync"
+
+type {{.Iface}} interface {
+	Add(v {{.Type}})
+	Values() []{{.Type}}
+	Size() int
+	Has(v {{.Type}}) bool
+}
+
+type {{.Struct}} struct {
+	m   map[{{.Type}}]bool
+	mux sync.Mutex
+}
+
+func (i *{{.Struct}}) Has(v {{.Type}}) bool {
+	_, ok := i.m[v]
+	return ok
+}
+
+func (i *{{.Struct}}) Size() int {
+	return len(i.m)
+}
+
+func (i *{{.Struct}}) Add(v {{.Type}}) {
+	i.mux.Lock()
+	defer i.mux.Unlock()
+	if _, ok := i.m[v]; !ok {
+		i.m[v] = true
+	}
+}
+
+func (i *{{.Struct}}) Values() []{{.Type}} {
+	i.mux.Lock()
+	defer i.mux.Unlock()
+	ret := make([]{{.Type}}, i.Size())
+	j := 0
+	for k := range i.m {
+		ret[j] = k
+		j++
+	}
+	return ret
+}
+
+func New{{.Iface}}() {{.Iface}} {
+    return &{{.Struct}}{ m: make(map[{{.Type}}]bool)}
+}
