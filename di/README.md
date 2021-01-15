@@ -1,0 +1,83 @@
+logos/di
+---
+A minimal dependency injection library for Go
+
+## Install
+
+```bash
+$ go get github.com/loilo-inc/logos
+```
+
+## Usage
+
+### The Basic
+
+logos/di is runtime dependency injection library.
+All values used in your application must be manually resolved by yourself.
+
+logos/di doesn't provide runtime type and null safety, but is very easy to learn.
+
+```go
+package main
+import "github.com/loilo-inc/logos/di"
+func main() { 
+  // Create DI Domain
+  d := di.NewDomain(func(b *di.B) {
+    // Setup phase
+    b.Set("str", "str")
+    b.Set("num", 1)
+  })
+  // Use dependencies 
+  str := d.Get("str").(string)
+  num := d.Get("num").(int)
+  // Will panic as value is not injected
+  not := d.Get("nothing").(interface{})
+}
+```
+
+In this example, there is one principal. 
+
+That is, all dependencies in the domain can only be set within setup function of `NewDomain()`.
+Once setup function has been completed, values in the domain cannot be updated. 
+This means that dependencies are immutable at runtime.
+
+To use dependencies, simply call `d.Get()` with specified key object to the dependency.
+
+In other words, `Domain` is like immutable map of objects.
+
+### Use Domain within Struct
+
+To use `Domain` within Struct's function, logos provides an auto domain injection mechanism.
+
+```go
+package main
+
+import (
+  "github.com/loilo-inc/logos"
+  "log"
+)
+
+func main() {
+  d := di.Domain(func(b *di.B) {
+    b.Set("service", &Service{})
+    b.Set("num", 1)
+  })
+  s := d.Get("service").(*Service)
+  log.Print(s.Num()) // 1
+}
+
+type Service struct {
+  // Public *di.D field with tag will automatically be injected after setup 	
+  D *di.D `di:"D"`
+}
+
+func (s *Service) Num() int {
+  // Can use Domain
+  num := s.D.Get("number").(int) // 1
+  return num
+}
+
+```
+During setup phase, other dependencies is not accessible from one.
+To use dependencies within a struct, define public `*di.D` field to the struct with tag `di:"D"`.
+Once a struct is registered to the domain, domain will be injected to that field.
