@@ -5,3 +5,4 @@ test:
 		github.com/loilo-inc/logos/... -count 1
 gen:
 	go run set/gen/main.go
+	go run tools/digen/gen/main.go

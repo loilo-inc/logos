@@ -20,10 +20,10 @@ func main() {
 		log.Fatalf(err.Error())
 	}
 	params := []parameter{
-		{Iface: "StringSet", Struct: "stringSet", Type: "string", Values: "[]string{\"1\",\"2\"}"},
-		{Iface: "IntSet", Struct: "intSet", Type: "int", Values: "[]int{1,2}"},
-		{Iface: "Int64Set", Struct: "int64Set", Type: "int64", Values: "[]int64{1,2}"},
-		{Iface: "BoolSet", Struct: "boolSet", Type: "bool", Values: "[]bool{false,true}"},
+		{Iface: "StringSet", Struct: "stringSet", Type: "string", Values: "[]string{\"1\", \"2\"}"},
+		{Iface: "IntSet", Struct: "intSet", Type: "int", Values: "[]int{1, 2}"},
+		{Iface: "Int64Set", Struct: "int64Set", Type: "int64", Values: "[]int64{1, 2}"},
+		{Iface: "BoolSet", Struct: "boolSet", Type: "bool", Values: "[]bool{false, true}"},
 	}
 	for _, p := range params {
 		dest := fmt.Sprintf("./set/%s_set.go", p.Type)
