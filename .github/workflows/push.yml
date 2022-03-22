@@ -12,10 +12,6 @@
           run: |
             go mod tidy
             git diff --exit-code
-        - name: Check auto generated files
-          run: |
-            make gen fmt
-            git diff --exit-code
         - name: Check Format
           run: |
             make fmt
