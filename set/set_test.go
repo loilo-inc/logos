@@ -4,7 +4,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/loilo-inc/logos/set"
+	"github.com/loilo-inc/logos/v2/set"
 	"github.com/stretchr/testify/assert"
 )
 
