@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/loilo-inc/logos/di"
+	"github.com/loilo-inc/logos/v2/di"
 	"github.com/stretchr/testify/assert"
 )
 

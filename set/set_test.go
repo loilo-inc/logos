@@ -1,18 +1,19 @@
 package set_test
 
 import (
-	"github.com/loilo-inc/logos/set"
-	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
+
+	"github.com/loilo-inc/logos/v2/set"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestInt64Set(t *testing.T) {
-	values := []int64{1, 2}
+func TestSet(t *testing.T) {
+	values := []int{1, 2}
 	val1 := values[0]
 	val2 := values[1]
 	t.Run("basic", func(t *testing.T) {
-		s := set.NewInt64Set()
+		s := set.NewSet[int]()
 		assert.Zero(t, s.Size())
 		s.Add(val1)
 		assert.Equal(t, 1, s.Size())
@@ -23,24 +24,24 @@ func TestInt64Set(t *testing.T) {
 		assert.Equal(t, 2, s.Size())
 		s.Add(val2)
 		assert.Equal(t, 2, s.Size())
-		assert.ElementsMatch(t, []int64{val1, val2}, s.Values())
+		assert.ElementsMatch(t, []int{val1, val2}, s.Values())
 		s.Delete(val2)
 		assert.Equal(t, 1, s.Size())
-		assert.Equal(t, []int64{val1}, s.Values())
+		assert.Equal(t, []int{val1}, s.Values())
 	})
 	t.Run("ForEach", func(t *testing.T) {
-		s := set.NewInt64Set()
+		s := set.NewSet[int]()
 		s.Add(val1)
 		s.Add(val2)
-		s.ForEach(func(v int64) (ok bool) {
+		s.ForEach(func(v int) (ok bool) {
 			assert.True(t, s.Has(v))
 			return true
 		})
 	})
 	t.Run("atomic", func(t *testing.T) {
 		wg := sync.WaitGroup{}
-		s := set.NewInt64Set()
-		add := func(v int64) {
+		s := set.NewSet[int]()
+		add := func(v int) {
 			wg.Add(1)
 			go func() {
 				s.Add(v)
