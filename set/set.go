@@ -22,7 +22,7 @@ func (i *set[T]) Has(v T) bool {
 
 func (i *set[T]) Size() int {
 	cnt := 0
-	i.m.Range(func(key, value interface{}) bool {
+	i.m.Range(func(key, value any) bool {
 		cnt += 1
 		return true
 	})
@@ -38,14 +38,14 @@ func (i *set[T]) Delete(v T) {
 }
 
 func (i *set[T]) ForEach(f func(i T) bool) {
-	i.m.Range(func(key, value interface{}) bool {
+	i.m.Range(func(key, value any) bool {
 		return f(key.(T))
 	})
 }
 
 func (i *set[T]) Values() []T {
 	var ret []T
-	i.m.Range(func(key, value interface{}) bool {
+	i.m.Range(func(key, value any) bool {
 		v := key.(T)
 		ret = append(ret, v)
 		return true
@@ -53,6 +53,10 @@ func (i *set[T]) Values() []T {
 	return ret
 }
 
-func NewSet[T comparable]() Set[T] {
-	return &set[T]{}
+func NewSet[T comparable](args ...T) Set[T] {
+	s := &set[T]{}
+	for _, v := range args {
+		s.Add(v)
+	}
+	return s
 }

@@ -1,6 +1,6 @@
 module github.com/loilo-inc/logos/v2
 
-go 1.18
+go 1.25
 
 require github.com/stretchr/testify v1.7.0
 
