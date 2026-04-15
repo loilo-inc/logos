@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func makeCases[T comparable](args ...T) []struct {
+func makeCases[T comparable]() []struct {
 	set  func(args ...T) Set[T]
 	name string
 } {
@@ -56,18 +56,18 @@ func TestNewSet(t *testing.T) {
 	for _, c := range makeCases[int]() {
 		t.Run(c.name, func(t *testing.T) {
 			t.Run("empty", func(t *testing.T) {
-				s := NewSet[int]()
+				s := c.set()
 				assert.Equal(t, 0, s.Size())
 				assert.Empty(t, s.Values())
 			})
 			t.Run("with single value", func(t *testing.T) {
-				s := NewSet(1)
+				s := c.set(1)
 				assert.Equal(t, 1, s.Size())
 				assert.True(t, s.Has(1))
 				assert.Equal(t, []int{1}, s.Values())
 			})
 			t.Run("with multiple values", func(t *testing.T) {
-				s := NewSet(1, 2, 3)
+				s := c.set(1, 2, 3)
 				assert.Equal(t, 3, s.Size())
 				assert.True(t, s.Has(1))
 				assert.True(t, s.Has(2))
@@ -75,16 +75,18 @@ func TestNewSet(t *testing.T) {
 				assert.ElementsMatch(t, []int{1, 2, 3}, s.Values())
 			})
 			t.Run("with duplicate values", func(t *testing.T) {
-				s := NewSet(1, 2, 2, 3, 1)
+				s := c.set(1, 2, 2, 3, 1)
 				assert.Equal(t, 3, s.Size())
 				assert.ElementsMatch(t, []int{1, 2, 3}, s.Values())
 			})
-			t.Run("with string type", func(t *testing.T) {
-				s := NewSet("a", "b", "c")
-				assert.Equal(t, 3, s.Size())
-				assert.True(t, s.Has("a"))
-				assert.ElementsMatch(t, []string{"a", "b", "c"}, s.Values())
-			})
+		})
+	}
+	for _, c := range makeCases[string]() {
+		t.Run("with string type", func(t *testing.T) {
+			s := c.set("a", "b", "c")
+			assert.Equal(t, 3, s.Size())
+			assert.True(t, s.Has("a"))
+			assert.ElementsMatch(t, []string{"a", "b", "c"}, s.Values())
 		})
 	}
 }

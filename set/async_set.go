@@ -45,6 +45,10 @@ func (i *asyncSet[T]) Values() []T {
 	return ret
 }
 
+func (i *asyncSet[T]) isAsyncSet() bool {
+	return true
+}
+
 func NewAsyncSet[T comparable](args ...T) AsyncSet[T] {
 	s := &asyncSet[T]{}
 	for _, v := range args {
