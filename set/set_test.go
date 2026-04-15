@@ -42,11 +42,9 @@ func TestSet(t *testing.T) {
 		wg := sync.WaitGroup{}
 		s := set.NewSet[int]()
 		add := func(v int) {
-			wg.Add(1)
-			go func() {
+			wg.Go(func() {
 				s.Add(v)
-				wg.Done()
-			}()
+			})
 		}
 		add(val1)
 		add(val2)

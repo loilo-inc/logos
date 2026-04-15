@@ -98,7 +98,7 @@ func TestD_Get(t *testing.T) {
 		d := di.NewDomain(func(b *di.B) {
 			b.Set(KeyReserved1, 1)
 		})
-		for i := 0; i < 20; i++ {
+		for i := range 20 {
 			i := i
 			t.Run(fmt.Sprintf("[%v]", i), func(t *testing.T) {
 				t.Parallel()
