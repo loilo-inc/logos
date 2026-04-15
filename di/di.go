@@ -5,11 +5,11 @@ import (
 )
 
 type B struct {
-	repo   map[interface{}]interface{}
+	repo   map[any]any
 	future *D
 }
 
-func (b *B) Set(key interface{}, o interface{}) {
+func (b *B) Set(key any, o any) {
 	if b.repo == nil {
 		panic("[di] domain setup func is already completed")
 	}
@@ -22,19 +22,19 @@ func (b *B) Future() *D {
 
 type D struct {
 	parent *D
-	repo   map[interface{}]interface{}
+	repo   map[any]any
 }
 
 func EmptyDomain() *D {
 	return &D{
 		parent: nil,
-		repo:   make(map[interface{}]interface{}),
+		repo:   make(map[any]any),
 	}
 }
 
 func NewDomain(setup func(b *B)) *D {
 	bag := B{
-		repo:   make(map[interface{}]interface{}),
+		repo:   make(map[any]any),
 		future: new(D),
 	}
 	setup(&bag)
@@ -43,7 +43,7 @@ func NewDomain(setup func(b *B)) *D {
 	return bag.future
 }
 
-func (d *D) Get(key interface{}) interface{} {
+func (d *D) Get(key any) any {
 	if d.repo == nil {
 		panic("[di] domain is not ready yet. domain setup func are not allowed access inside domain.")
 	}
@@ -63,7 +63,7 @@ func (d *D) Subdomain(setup func(b *B)) *D {
 		panic("[di] domain is not ready yet. domain setup func are not allowed access inside domain.")
 	}
 	bag := B{
-		repo:   make(map[interface{}]interface{}),
+		repo:   make(map[any]any),
 		future: new(D),
 	}
 	setup(&bag)

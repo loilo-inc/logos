@@ -12,8 +12,8 @@ type Key string
 
 const (
 	KeyReserved1 Key = "KeyReserved1"
-	KeyReserved2     = "KeyReserved2"
-	KeyReserved3     = "KeyReserved3"
+	KeyReserved2 Key = "KeyReserved2"
+	KeyReserved3 Key = "KeyReserved3"
 )
 
 func TestEmptyDomain(t *testing.T) {
@@ -98,7 +98,7 @@ func TestD_Get(t *testing.T) {
 		d := di.NewDomain(func(b *di.B) {
 			b.Set(KeyReserved1, 1)
 		})
-		for i := 0; i < 20; i++ {
+		for i := range 20 {
 			i := i
 			t.Run(fmt.Sprintf("[%v]", i), func(t *testing.T) {
 				t.Parallel()
