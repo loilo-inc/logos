@@ -1,7 +1,5 @@
 package set
 
-import "sync"
-
 type Set[T comparable] interface {
 	Add(v T)
 	Delete(v T)
@@ -12,49 +10,44 @@ type Set[T comparable] interface {
 }
 
 type set[T comparable] struct {
-	m sync.Map
+	m map[T]struct{}
 }
 
 func (i *set[T]) Has(v T) bool {
-	_, ok := i.m.Load(v)
+	_, ok := i.m[v]
 	return ok
 }
 
 func (i *set[T]) Size() int {
-	cnt := 0
-	i.m.Range(func(key, value any) bool {
-		cnt += 1
-		return true
-	})
-	return cnt
+	return len(i.m)
 }
 
 func (i *set[T]) Add(v T) {
-	i.m.Store(v, struct{}{})
+	i.m[v] = struct{}{}
 }
 
 func (i *set[T]) Delete(v T) {
-	i.m.Delete(v)
+	delete(i.m, v)
 }
 
 func (i *set[T]) ForEach(f func(i T) bool) {
-	i.m.Range(func(key, value any) bool {
-		return f(key.(T))
-	})
+	for k := range i.m {
+		if !f(k) {
+			break
+		}
+	}
 }
 
 func (i *set[T]) Values() []T {
 	var ret []T
-	i.m.Range(func(key, value any) bool {
-		v := key.(T)
-		ret = append(ret, v)
-		return true
-	})
+	for k := range i.m {
+		ret = append(ret, k)
+	}
 	return ret
 }
 
 func NewSet[T comparable](args ...T) Set[T] {
-	s := &set[T]{}
+	s := &set[T]{m: make(map[T]struct{})}
 	for _, v := range args {
 		s.Add(v)
 	}

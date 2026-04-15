@@ -12,8 +12,8 @@ type Key string
 
 const (
 	KeyReserved1 Key = "KeyReserved1"
-	KeyReserved2     = "KeyReserved2"
-	KeyReserved3     = "KeyReserved3"
+	KeyReserved2 Key = "KeyReserved2"
+	KeyReserved3 Key = "KeyReserved3"
 )
 
 func TestEmptyDomain(t *testing.T) {
